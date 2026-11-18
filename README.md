@@ -1,56 +1,75 @@
-# Welcome to your Expo app 👋
+# ShiftMate
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Your Work. Your Time. Your Earnings.**
 
-## Get started
+Track working hours, breaks and earnings across multiple employers — offline-first, on
+Android and iOS. Built with Expo (SDK 58), React Native, TypeScript (strict) and SQLite.
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Quick start
 
 ```bash
-npm run reset-project
+npm install
+npx expo start          # press i (iOS simulator), a (Android emulator), or scan with Expo Go
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+| Command | What it does |
+| --- | --- |
+| `npm test` | Unit + integration tests (Jest) |
+| `npm run typecheck` | TypeScript strict check |
+| `npm run lint` | ESLint (incl. React Compiler rules) |
+| `npx expo-doctor` | Dependency/config health check |
 
-### Other setup steps
+> Requires Node 22.13+, 24.3+ (recommended) or 26+.
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Project layout
 
-## Learn more
+```
+src/
+  app/                  Screens (Expo Router — each file is a route)
+    (tabs)/             Home · Analytics · History · Compare · Settings
+    jobs/               My Jobs list, job details, add/edit form
+    shifts/             Manual entry, shift details
+    onboarding.tsx
+  components/           Reusable UI (ui/ design-system primitives, shift/, charts/)
+  database/             SQLite migrations, row mappers, expo-sqlite adapter
+  repositories/         SQL access per table + sync outbox
+  services/             Business logic — no UI
+    calculations/       Pure maths: shifts, breaks, salary/overtime, interval union
+    shiftService.ts     Timer, breaks, manual entry, edit/delete
+    jobService.ts       Employers, pay-rate history, overtime rules
+    reportService.ts    Period reports from real records
+  hooks/                React ↔ database glue (useLive, useMutation, useNow…)
+  store/                Zustand (settings mirror, data-version counter)
+  theme/                Design tokens + theme provider (light/dark/system)
+  types/  utils/  validation/
+tests/
+  unit/                 Pure calculation tests
+  integration/          Services against a real in-memory SQLite (node:sqlite)
+docs/DECISIONS.md       Why things are the way they are — read this first
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+**Rule of thumb:** screens call services; services call repositories; repositories run
+SQL. Calculations are pure functions with no I/O, so they're easy to test.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Status
 
-## Join the community
+| Phase | Status |
+| --- | --- |
+| 1 Architecture & design system | ✅ Done |
+| 2 Premium UI & navigation | ✅ Core screens done |
+| 3 Onboarding & job management | ✅ Account required (sign-up first), then onboarding |
+| 4 Shift timer & break engine | ✅ Done, tested |
+| 5 Manual shift entry | ✅ Done, tested |
+| 6 SQLite persistence & migrations | ✅ Done, tested |
+| 7 Daily/weekly/monthly analytics | ✅ Done (calendar view pending) |
+| 8 Comparison & salary | ✅ Done (salary engine tested; comparison UI not yet tested) |
+| 9 Schedules & notifications | ⏳ Schema in place, UI/logic not built |
+| 10 Supabase auth & sync | ✅ Push/pull sync engine, tested; run `supabase/migrations/*_cloud_sync.sql` once per project |
+| 11 PDF/CSV/Excel export | ⏳ Not started |
+| 12 Security audit | ⏳ |
+| 13 E2E tests (Maestro) & UI tests | ⏳ |
+| 14 Release prep (EAS) | ⏳ |
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Not yet built: schedules & reminders, exports, biometric lock,
+widgets, calendar view, native date/time pickers (fields currently take typed
+`HH:mm` / `YYYY-MM-DD`).
